@@ -1,0 +1,25 @@
+# Prevent 301 redirect with slash when folder exists and does not have slash appended
+# This is not a security issue here since a PHP router is used and all the paths are redirected
+DirectorySlash Off
+
+#1.5 Redirect direct requests to "/index.php" back to "/" (root)
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^api\.php$ / [R=301,L]
+
+# Since "DirectorySlash Off" is set, ensure that mod_auotindex directory listings are disabled
+Options -Indexes
+
+RewriteEngine On
+
+#1. Rewrite for API url
+RewriteRule ^api/([0-9a-zA-Z_-]*)$ api.php?order_id=$1 [NC,L]
+
+#2. Known URLs/files are served directly
+RewriteRule ^(index\.php|robots\.txt|favicon\.ico)$ - [END]
+
+#3. Certain file types (resources) are served directly if they exist
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.(css|js|png|jpe?g|bmp|gif|ttf|eot|svg|woff|woff2|ico|webp|pdf)$ - [END]
+
+#4. Rewrite everything else
+RewriteRule ^ index.php [END]
